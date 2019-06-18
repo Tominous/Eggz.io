@@ -55,7 +55,7 @@ class Messenger {
     }
     
     client_sendDC(type, data) {
-        // console.log(type + '-' + data);
+         console.log(type + '-' + data);
         this.dc.send(type + '-' + data);
     }
 
@@ -68,7 +68,7 @@ class Messenger {
     handleMessage(data) {
         var type = data.substring(0,1);
         var result = data.substring(2,data.length);
-        // console.log(type + ':' + result);
+         console.log(type + ':' + result);
     }
 
     handleWSMessage(data) {
@@ -93,7 +93,7 @@ class Messenger {
                 var t_sent = parseInt(ping.time);
                 var t_rec = parseInt(Date.now());
                 var delta = t_rec - t_sent;
-                //console.log('WS Ping roundtrip took: ' + delta * 1000+ 's');
+                console.log('WS Ping roundtrip took: ' + delta * 1000+ 's');
                 pingsWS.splice(pingsWS.indexOf(ping), 1);
                 updateWSPing(delta);
               }
@@ -103,7 +103,7 @@ class Messenger {
 }
 
 function updateWSPing(delta) {
-    // console.log('updateWSPing');
+     console.log('updateWSPing');
     $('#ws-ping').html('WS Ping: ' + delta  + 'ms queue[' + pingsWS.length + ']');    
 }
 
@@ -197,9 +197,9 @@ function setupPhaserGame() {
 
         game.physics.p2.convertTilemap(map, layer);
     
-        //layer.debug = true;  
-        //game.time.advancedTiming = true;
-        //game.time.desiredFps = 45;
+        layer.debug = true;  
+        game.time.advancedTiming = true;
+        game.time.desiredFps = 45;
 
         var nest = new Phaser.Sprite(game, 1000, 1280, 'nest');
         game.physics.p2.enable(nest, false);
@@ -228,7 +228,7 @@ function setupPhaserGame() {
 
         // Pick an egg color at random
         var egg_color = eggs_list[Math.floor(Math.random()*eggs_list.length)];
-        // console.log('random egg color: ' + egg_color);
+         console.log('random egg color: ' + egg_color);
 
         player = game.add.sprite(400, 1500, egg_color);
         game.physics.p2.enable(player, false);
@@ -245,7 +245,7 @@ function setupPhaserGame() {
 
         cursors = game.input.keyboard.createCursorKeys();
 
-        //space_bar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        space_bar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         game.stage.disableVisibilityChange = true;
         game.time.advancedTiming = true;
 
@@ -384,7 +384,7 @@ function setupPhaserGame() {
         if (client_dpt == undefined || Number.isNaN(client_dpt))
             client_dpt = 0;
         client_lpt = Date.now();
-        // console.log(client_dpt); at 60FPS this is about 16ms
+         console.log(client_dpt); at 60FPS this is about 16ms
 
         // only allow player movement if the game is in focus
         if (gameFocus) {
@@ -420,7 +420,7 @@ function setupPhaserGame() {
                 else if (Math.abs(player.body.velocity.x) < max_velocity) {
                     player.body.force.x = (150 * config.player_speed);
                 }
-                // console.log('(' + player.body.velocity.x + ',' + player.body.velocity.y + ')');
+                 console.log('(' + player.body.velocity.x + ',' + player.body.velocity.y + ')');
             }
             
             if ( (cursors.up.isDown || game.input.keyboard.isDown(Phaser.Keyboard.W)) && canPlayerJump()) {
@@ -466,13 +466,13 @@ function setupPhaserGame() {
                 belt_color: localPlayer.belt_color,
                 is_alive: localPlayer.is_alive
             }
-            // console.log(keyInputStr + '(' + player.body.x + ',' + player.body.y + ')');
-            //console.log(JSON.stringify(input_update));
+             console.log(keyInputStr + '(' + player.body.x + ',' + player.body.y + ')');
+            console.log(JSON.stringify(input_update));
             if (config.wrtc) {
                 msg.client_sendDC('i', JSON.stringify(input_update));
             }
             else {
-                //console.log('sending input update to server');
+                console.log('sending input update to server');
                 client_sendWS('i', JSON.stringify(input_update));
             }
         }
@@ -487,13 +487,13 @@ function setupPhaserGame() {
                 belt_color: localPlayer.belt_color,
                 is_alive: localPlayer.is_alive
             }
-            // console.log(keyInputStr + '(' + player.body.x + ',' + player.body.y + ')');
-            // console.log(JSON.stringify(input_update));
+             console.log(keyInputStr + '(' + player.body.x + ',' + player.body.y + ')');
+             console.log(JSON.stringify(input_update));
             if (config.wrtc && dc_open) {
                 msg.client_sendDC('i', JSON.stringify(input_update));
             }
             else {
-                //console.log('sending input update to server');
+                console.log('sending input update to server');
                 client_sendWS('i', JSON.stringify(input_update));
             }
         }
