@@ -50,7 +50,7 @@ http.listen(port, function(){
 io.on('connection', function(socket) {
   console.log('a user connected via webSocket');
   players.push(new Player(null, socket.id, socket, 0, 0));
-  //clients.push(socket);
+  clients.push(socket);
 
   // making new peer connection
 
@@ -69,14 +69,14 @@ io.on('connection', function(socket) {
         }
       }
 
-      // clients.splice(clients.indexOf(socket), 1);
+       clients.splice(clients.indexOf(socket), 1);
   });
 
   socket.on('wrtc_answer', function(data) {
-      // console.log('wrtc answer received from client');
+       console.log('wrtc answer received from client');
       desc = JSON.parse(data);
       socket.pc.set_pc1_remote_description(desc);        
-      //console.log(data);
+      console.log(data);
   });
 
   socket.on('msg', function (data) {
@@ -89,7 +89,7 @@ io.on('connection', function(socket) {
   })
 
   socket.on('candidate', function(data) {
-      // console.log('candidate received from client');
+       console.log('candidate received from client');
 
       var candidate = new RTCIceCandidate(JSON.parse(data));
       if (candidate)
@@ -107,7 +107,7 @@ class ServerMessenger extends Messenger {
   }
 
   consumeMessage(type, data) {
-    // console.log('consuming this action');
+     console.log('consuming this action');
     super.consumeMessage(type, data);
   }
 }
@@ -119,18 +119,18 @@ function handleClientWSMessage(socket, data) {
 }
 
 function consumeWSMessage(socket, type, result) {
-  // console.log(result);
+   console.log(result);
   if (type == 'w') {
     var r = result.split('.');
     var id = r[0];
     var t_sent = parseInt(r[1]);
 
     var t_rec = parseInt(Date.now());
-    //console.log('sending WS ping back to client');
+    console.log('sending WS ping back to client');
     socket.emit('data', 'w-' + id + '.' + t_rec);
   }
   else if (type == 'i') {
-    //console.log('client input received');
+    console.log('client input received');
     var input = JSON.parse(result);
 
     // update player position
@@ -140,7 +140,7 @@ function consumeWSMessage(socket, type, result) {
         player.y = input.y;
         player.rotation = input.rotation;
         player.egg_color = input.egg_color; // need to move this to server side only updates
-        //console.log(player);
+        console.log(player);
       }
     });
   }
@@ -161,7 +161,7 @@ function consumeWSMessage(socket, type, result) {
     players.forEach(function(player) {
       if (player.id == id) {
         player.name = name;
-        // console.log('name assigned to:' + player.id);
+         console.log('name assigned to:' + player.id);
       }
     });
   }
@@ -175,9 +175,9 @@ function handleClientDCMessage(dc1, data) {
 }
 
 function consumeDCMessage(dc1, type, result) {
- //console.log(type + ' ' + result);
+ console.log(type + ' ' + result);
   if (type == 'i') {
-    //console.log('client input received');
+    console.log('client input received');
     var input = JSON.parse(result);
 
     // update player position
@@ -187,7 +187,7 @@ function consumeDCMessage(dc1, type, result) {
         player.y = input.y;
         player.rotation = input.rotation;
         player.egg_color = input.egg_color; // need to move this to a server side only update
-        //console.log(player);
+        console.log(player);
       }
     });
   }
@@ -199,13 +199,13 @@ function consumeDCMessage(dc1, type, result) {
     var id = r[0];
     var t_sent = parseInt(r[1]);
 
-    //console.log(id + " : " + t_sent);
+    console.log(id + " : " + t_sent);
 
-    //var t_sent = r.time;
+    var t_sent = r.time;
     var t_rec = parseInt(Date.now());
     
-    //console.log(t_rec + ',' + t_sent);
-    //console.log('UDP Ping took: ' + ((t_rec-t_sent)/1000) + 's');
+    console.log(t_rec + ',' + t_sent);
+    console.log('UDP Ping took: ' + ((t_rec-t_sent)/1000) + 's');
     dc1.send('g-' + id + '.' + t_rec);
 
 
@@ -218,8 +218,8 @@ class PeerConnection {
 
     this.socketid = socketid;
     this.dc1 = null;
-    // io.to(this.socketid).emit('msg','lets get loco!!!');
-    // console.log('making new RTCPeerConnection')
+     io.to(this.socketid).emit('msg','lets get loco!!!');
+     console.log('making new RTCPeerConnection')
     this.pc1 = new RTCPeerConnection(
       {
         audioDeviceModule: 'fake',
@@ -233,7 +233,7 @@ class PeerConnection {
     this.pc1.onicecandidate = function(candidate) {
       if(!candidate.candidate) return;
 
-      // console.log('candidate to send to client found');
+       console.log('candidate to send to client found');
       io.to(this.socketid).emit('candidate', JSON.stringify(candidate.candidate));
       //pc2.addIceCandidate(candidate.candidate);
     }.bind(this);
@@ -244,11 +244,11 @@ class PeerConnection {
   }
 
   handleAddIceCandidateSuccess() {
-   // console.log('add ice succeeded');
+    console.log('add ice succeeded');
   }
     
   handleAddIceCandidateError() {
-   // console.log('add ice error');
+    console.log('add ice error');
   }  
 
 
@@ -270,11 +270,11 @@ class PeerConnection {
       console.log("data channel open with user");
       this.dc1.onmessage = function(event) {
         var data = event.data;
-        //console.log(data);
-        // console.log("dc1: sending 'pong'");
-        // dc1.send("echo from data channel");
+        console.log(data);
+         console.log("dc1: sending 'pong'");
+         dc1.send("echo from data channel");
         this.handleDCMsg(this.dc1,data);
-        // io.to(this.socketid).emit('msg','sending message over data channel');        
+         io.to(this.socketid).emit('msg','sending message over data channel');        
       }.bind(this);  
     }.bind(this);
     this.create_offer();
@@ -291,21 +291,21 @@ class PeerConnection {
   }
   
   set_pc1_local_description(desc) {
-    //console.log('pc1: set local description');
-    //console.log(JSON.stringify(desc));
-    //console.log('Sending client wrtc offer');
+    console.log('pc1: set local description');
+    console.log(JSON.stringify(desc));
+    console.log('Sending client wrtc offer');
     io.to(this.socketid).emit('wrtc_offer',JSON.stringify(desc));
 
     this.pc1.setLocalDescription(
       new RTCSessionDescription(desc),
-      // set_pc2_remote_description.bind(undefined, desc),
+       set_pc2_remote_description.bind(undefined, desc),
       this.set_pc2.bind(undefined, desc),
       this.handle_error
     ); 
   }
   
   set_pc1_remote_description(desc) {
-    // console.log('pc1: set remote description called');
+     console.log('pc1: set remote description called');
     
     this.pc1.setRemoteDescription(
       new RTCSessionDescription(desc),
@@ -316,7 +316,7 @@ class PeerConnection {
   
   set_pc2() { }
   wait() { 
-    // console.log('awaiting data channels'); 
+     console.log('awaiting data channels'); 
   }
    
   openNewDataChannel(socketid) {
@@ -324,9 +324,9 @@ class PeerConnection {
   }
   
   done() {
-    // console.log('cleanup');
+     console.log('cleanup');
     this.pc1.close(); 
-    // console.log('done');
+     console.log('done');
   }
 }
 
@@ -342,8 +342,8 @@ setInterval(function() {
       });  
     }, this);
     console.log('conected client websockets: ' + JSON.stringify(player_list));
-    //io.emit('player_list', JSON.stringify(player_list));
-    //io.emit('data','l-' + JSON.stringify(player_list));
+    io.emit('player_list', JSON.stringify(player_list));
+    io.emit('data','l-' + JSON.stringify(player_list));
 
     // send player list to all players
     if (config.wrtc) {
@@ -380,7 +380,7 @@ function gameLoop() {
 
     update(delta);
 
-    //console.log('delta', delta, '(target: ' + tickLengthMs +' ms)', 'node ticks', actualTicks);
+    console.log('delta', delta, '(target: ' + tickLengthMs +' ms)', 'node ticks', actualTicks);
     actualTicks = 0;
   }
 
@@ -398,7 +398,7 @@ a function that takes 10 milliseconds to complete thus simulating that our game
 had a very busy time.
 */
 function update(delta) {
-  //console.log('tick: ' + delta);
+  console.log('tick: ' + delta);
 
 
   collisionsUpdate();
@@ -421,8 +421,8 @@ function update(delta) {
     p.is_alive  = player.is_alive;
     serverUpdate.player_update.push(p);
   });
-  //console.log('sending update');
-  //console.log(player_update);
+  console.log('sending update');
+  console.log(player_update);
 
   if (config.wrtc) {
     players.forEach(function(player)  {
@@ -435,7 +435,7 @@ function update(delta) {
   }
 
 
- // aVerySlowFunction(10);
+  aVerySlowFunction(10);
 }
 
 /**
@@ -465,7 +465,7 @@ function collisionsUpdate() {
         // update the player's belt color
         player.belt_color =  config.ninja_belts[config.ninja_belts.indexOf(player.belt_color) + 1];
 
-        //console.log(player.belt_color);
+        console.log(player.belt_color);
       }
     }
 
